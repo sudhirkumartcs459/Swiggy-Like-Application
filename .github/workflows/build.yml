@@ -37,3 +37,5 @@ jobs:
           docker tag swiggy-clone sudhirkumar123/swiggy-clone:latest
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           docker push sudhirkumar123/swiggy-clone:latest
+
+
