@@ -8,12 +8,20 @@ on:
 jobs:
   build:
     name: Build & SonarQube Scan
-    runs-on: self-hosted   # 🔥 IMPORTANT
+    runs-on: self-hosted
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0   # Required for proper Sonar analysis
+          fetch-depth: 0
+
+      # 🔍 DEBUG (Keep once, remove later)
+      - name: Verify project files
+        run: |
+          pwd
+          ls -la
+          cat package.json
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
@@ -21,11 +29,13 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: http://localhost:9000
 
-      - uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '16'
 
-      - run: npm install
+      - name: Install dependencies
+        run: npm install
 
       - name: Docker build and push
         run: |
@@ -33,7 +43,3 @@ jobs:
           docker tag swiggy-clone sudhirkumar123/swiggy-clone:latest
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           docker push sudhirkumar123/swiggy-clone:latest
-        env:
-          DOCKER_CLI_ACI: 1
-
-          
