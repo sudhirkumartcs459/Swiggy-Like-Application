@@ -42,14 +42,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # 🔍 CRITICAL DEBUG STEP (DO NOT REMOVE)
+      - name: Debug AWS identity
+        run: aws sts get-caller-identity
+
       - name: Image scan (Trivy)
         run: trivy image sudhirkumar123/swiggy-clone:latest > trivyimagedeploy.txt
 
       - name: Update kubeconfig
         run: aws eks --region ap-south-1 update-kubeconfig --name EKS_CLOUD
 
+      # 🚀 Kubernetes deployment
       - name: Deploy to Kubernetes
-        run: kubectl apply -f deployment-service.yml --validate=false
+        run: kubectl apply -f deployment-service.yml
 
       - name: Verify deployment
         run: kubectl get pods,svc
