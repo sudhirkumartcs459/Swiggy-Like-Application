@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
@@ -30,8 +28,6 @@ jobs:
         run: npm install
 
       - name: Docker build and push
-        env:
-          DOCKER_CLI_ACI: 1
         run: |
           docker build -t swiggy-clone .
           docker tag swiggy-clone sudhirkumar123/swiggy-clone:latest
@@ -43,19 +39,17 @@ jobs:
     needs: build
 
     steps:
-      - name: Docker pull image
-        run: docker pull sudhirkumar123/swiggy-clone:latest
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Image scan (Trivy)
         run: trivy image sudhirkumar123/swiggy-clone:latest > trivyimagedeploy.txt
-
-      - name: Deploy container locally
-        run: |
-          docker rm -f swiggy-clone || true
-          docker run -d --name swiggy-clone -p 3000:3000 sudhirkumar123/swiggy-clone:latest
 
       - name: Update kubeconfig
         run: aws eks --region ap-south-1 update-kubeconfig --name EKS_CLOUD
 
       - name: Deploy to Kubernetes
         run: kubectl apply -f deployment-service.yml
+
+      - name: Verify deployment
+        run: kubectl get pods,svc
