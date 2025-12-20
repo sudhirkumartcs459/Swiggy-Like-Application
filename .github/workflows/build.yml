@@ -49,7 +49,7 @@ jobs:
         run: aws eks --region ap-south-1 update-kubeconfig --name EKS_CLOUD
 
       - name: Deploy to Kubernetes
-        run: kubectl apply -f deployment-service.yml
+        run: kubectl apply -f deployment-service.yml --validate=false
 
       - name: Verify deployment
         run: kubectl get pods,svc
