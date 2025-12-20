@@ -46,10 +46,16 @@ jobs:
       - name: Docker pull image
         run: docker pull sudhirkumar123/swiggy-clone:latest
 
-      - name: Image scan
+      - name: Image scan (Trivy)
         run: trivy image sudhirkumar123/swiggy-clone:latest > trivyimagedeploy.txt
 
-      - name: Deploy to container
+      - name: Deploy container locally
         run: |
           docker rm -f swiggy-clone || true
           docker run -d --name swiggy-clone -p 3000:3000 sudhirkumar123/swiggy-clone:latest
+
+      - name: Update kubeconfig
+        run: aws eks --region ap-south-1 update-kubeconfig --name EKS_CLOUD
+
+      - name: Deploy to Kubernetes
+        run: kubectl apply -f deployment-service.yml
