@@ -38,4 +38,18 @@ jobs:
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           docker push sudhirkumar123/swiggy-clone:latest
 
+  deploy:
+    runs-on: self-hosted
+    needs: build
 
+    steps:
+      - name: Docker pull image
+        run: docker pull sudhirkumar123/swiggy-clone:latest
+
+      - name: Image scan
+        run: trivy image sudhirkumar123/swiggy-clone:latest > trivyimagedeploy.txt
+
+      - name: Deploy to container
+        run: |
+          docker rm -f swiggy-clone || true
+          docker run -d --name swiggy-clone -p 3000:3000 sudhirkumar123/swiggy-clone:latest
